@@ -1,8 +1,8 @@
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProtectedRoute({ children }) {
-    // We check for 'token' here as that is the key we used in Login.jsx and InventoryDashboard.jsx
-    const token = localStorage.getItem('token');
+    const { token } = useAuth();
     
     if (!token) {
         return <Navigate to="/" replace />;

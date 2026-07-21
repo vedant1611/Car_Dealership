@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
+import { AuthProvider } from '../context/AuthContext';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const LocationDisplay = () => {
@@ -19,11 +20,13 @@ describe('Navbar Component', () => {
     it('renders logout button and navigates to / on click', () => {
         render(
             <MemoryRouter initialEntries={['/dashboard']}>
-                <Navbar />
-                <Routes>
-                    <Route path="/dashboard" element={<div />} />
-                    <Route path="/" element={<LocationDisplay />} />
-                </Routes>
+                <AuthProvider>
+                    <Navbar />
+                    <Routes>
+                        <Route path="/dashboard" element={<div />} />
+                        <Route path="/" element={<LocationDisplay />} />
+                    </Routes>
+                </AuthProvider>
             </MemoryRouter>
         );
 
