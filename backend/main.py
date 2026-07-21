@@ -63,4 +63,25 @@ def get_vehicles(
     vehicles = db.query(models.Vehicle).all()
     return vehicles
 
+@app.put("/api/vehicles/{vehicle_id}", response_model=schemas.VehicleResponse)
+def update_vehicle(
+    vehicle_id: int,
+    vehicle_data: schemas.VehicleCreate,
+    db: Session = Depends(get_db),
+    current_user: str = Depends(security.get_current_user)
+):
+    db_vehicle = db.query(models.Vehicle).filter(models.Vehicle.id == vehicle_id).first()
+    if not db_vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    db_vehicle.make = vehicle_data.make
+    db_vehicle.model = vehicle_data.model
+    db_vehicle.category = vehicle_data.category
+    db_vehicle.price = vehicle_data.price
+    db_vehicle.quantity = vehicle_data.quantity
+    
+    db.commit()
+    db.refresh(db_vehicle)
+    return db_vehicle
+
 
