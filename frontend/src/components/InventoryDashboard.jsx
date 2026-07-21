@@ -1,41 +1,66 @@
 import { useState, useEffect } from 'react';
+import CreateVehicleModal from './CreateVehicleModal';
 
 export default function InventoryDashboard() {
   const [vehicles, setVehicles] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchVehicles = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('No authentication token found. Please log in.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/vehicles', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch inventory.');
+      }
+
+      const data = await response.json();
+      setVehicles(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchVehicles = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('No authentication token found. Please log in.');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/vehicles', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch inventory.');
-        }
-
-        const data = await response.json();
-        setVehicles(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchVehicles();
   }, []);
+
+  const handleCreateVehicle = async (formData) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch('/api/vehicles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create vehicle');
+      }
+      
+      setIsModalOpen(false);
+      fetchVehicles(); // Re-fetch the inventory list
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   if (loading) {
     return <div className="p-8 text-center text-gray-500">Loading inventory...</div>;
@@ -43,7 +68,15 @@ export default function InventoryDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <h2 className="text-3xl font-semibold text-gray-900">Vehicle Inventory</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-semibold text-gray-900">Vehicle Inventory</h2>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-200 transition-all active:scale-[0.98]"
+        >
+          Add Vehicle
+        </button>
+      </div>
       
       {error && (
         <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg">
@@ -74,6 +107,12 @@ export default function InventoryDashboard() {
           ))}
         </div>
       )}
+
+      <CreateVehicleModal 
+        isOpen={isModalOpen}
+        onSubmit={handleCreateVehicle}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
