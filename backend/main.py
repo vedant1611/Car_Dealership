@@ -43,4 +43,16 @@ def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
     access_token = security.create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
+@app.post("/api/vehicles", response_model=schemas.VehicleResponse)
+def create_vehicle(
+    vehicle: schemas.VehicleCreate, 
+    db: Session = Depends(get_db), 
+    current_user: str = Depends(security.get_current_user)
+):
+    new_vehicle = models.Vehicle(**vehicle.model_dump())
+    db.add(new_vehicle)
+    db.commit()
+    db.refresh(new_vehicle)
+    return new_vehicle
+
 
