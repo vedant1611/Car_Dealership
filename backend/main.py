@@ -55,4 +55,12 @@ def create_vehicle(
     db.refresh(new_vehicle)
     return new_vehicle
 
+@app.get("/api/vehicles", response_model=list[schemas.VehicleResponse])
+def get_vehicles(
+    db: Session = Depends(get_db),
+    current_user: str = Depends(security.get_current_user)
+):
+    vehicles = db.query(models.Vehicle).all()
+    return vehicles
+
 
