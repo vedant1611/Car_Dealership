@@ -168,3 +168,35 @@ def test_update_vehicle_authenticated():
     assert updated_vehicle["price"] == 34000.0
     assert updated_vehicle["quantity"] == 4
 
+def test_delete_vehicle_authenticated():
+    # Login to get the access token
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": "login@example.com", "password": "loginpassword"}
+    )
+    assert login_response.status_code == 200
+    token = login_response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Create a vehicle first
+    vehicle_payload = {
+        "make": "Chevrolet",
+        "model": "Camaro",
+        "category": "Coupe",
+        "price": 36000.0,
+        "quantity": 1
+    }
+    post_response = client.post("/api/vehicles", json=vehicle_payload, headers=headers)
+    assert post_response.status_code == 200
+    vehicle_id = post_response.json()["id"]
+
+    # Attempt to delete the vehicle
+    delete_response = client.delete(f"/api/vehicles/{vehicle_id}", headers=headers)
+    
+    # We expect this to fail initially since the DELETE endpoint doesn't exist
+    assert delete_response.status_code in (200, 204)
+    
+    # Assert that fetching the specific vehicle returns a 404
+    get_response = client.get(f"/api/vehicles/{vehicle_id}", headers=headers)
+    assert get_response.status_code == 404
+
