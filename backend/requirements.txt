@@ -4,3 +4,6 @@ pytest
 httpx
 sqlalchemy
 psycopg2-binary
+passlib
+bcrypt<4.0.0
+pydantic[email]
