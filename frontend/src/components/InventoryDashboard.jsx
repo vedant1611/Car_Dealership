@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import CreateVehicleModal from './CreateVehicleModal';
+import { useToast } from '../context/ToastContext';
 
 export default function InventoryDashboard() {
   const [vehicles, setVehicles] = useState([]);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { addToast } = useToast();
 
   const fetchVehicles = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
-      setError('No authentication token found. Please log in.');
+      addToast('No authentication token found. Please log in.', 'error');
       setLoading(false);
       return;
     }
@@ -29,7 +30,7 @@ export default function InventoryDashboard() {
       const data = await response.json();
       setVehicles(data);
     } catch (err) {
-      setError(err.message);
+      addToast(err.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -55,10 +56,11 @@ export default function InventoryDashboard() {
         throw new Error('Failed to create vehicle');
       }
       
+      addToast('Vehicle created successfully!', 'success');
       setIsModalOpen(false);
       fetchVehicles(); // Re-fetch the inventory list
     } catch (err) {
-      setError(err.message);
+      addToast('Failed to create vehicle. Please check the data and try again.', 'error');
     }
   };
 
@@ -77,20 +79,14 @@ export default function InventoryDashboard() {
           Add Vehicle
         </button>
       </div>
-      
-      {error && (
-        <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg">
-          {error}
-        </div>
-      )}
 
-      {!error && vehicles.length === 0 && (
+      {vehicles.length === 0 && (
         <div className="p-8 text-center text-gray-500 bg-gray-50 border border-gray-200 rounded-xl">
           No vehicles found in inventory.
         </div>
       )}
 
-      {!error && vehicles.length > 0 && (
+      {vehicles.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {vehicles.map(vehicle => (
             <div key={vehicle.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
