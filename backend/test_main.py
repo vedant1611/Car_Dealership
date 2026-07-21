@@ -98,3 +98,34 @@ def test_create_vehicle_authenticated():
     assert data["make"] == "Toyota"
     assert "id" in data
 
+def test_get_vehicles_authenticated():
+    # Login to get the access token
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": "login@example.com", "password": "loginpassword"}
+    )
+    assert login_response.status_code == 200
+    token = login_response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Create a vehicle first
+    vehicle_payload = {
+        "make": "Honda",
+        "model": "Civic",
+        "category": "Sedan",
+        "price": 22000.0,
+        "quantity": 3
+    }
+    post_response = client.post("/api/vehicles", json=vehicle_payload, headers=headers)
+    assert post_response.status_code == 200
+    created_vehicle = post_response.json()
+
+    # Attempt to fetch all vehicles
+    get_response = client.get("/api/vehicles", headers=headers)
+    
+    # We expect this to fail initially since the GET endpoint doesn't exist
+    assert get_response.status_code == 200
+    vehicles = get_response.json()
+    assert isinstance(vehicles, list)
+    assert any(v["id"] == created_vehicle["id"] for v in vehicles)
+
