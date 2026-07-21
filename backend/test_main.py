@@ -129,3 +129,42 @@ def test_get_vehicles_authenticated():
     assert isinstance(vehicles, list)
     assert any(v["id"] == created_vehicle["id"] for v in vehicles)
 
+def test_update_vehicle_authenticated():
+    # Login to get the access token
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": "login@example.com", "password": "loginpassword"}
+    )
+    assert login_response.status_code == 200
+    token = login_response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Create a vehicle first
+    vehicle_payload = {
+        "make": "Ford",
+        "model": "Mustang",
+        "category": "Coupe",
+        "price": 35000.0,
+        "quantity": 2
+    }
+    post_response = client.post("/api/vehicles", json=vehicle_payload, headers=headers)
+    assert post_response.status_code == 200
+    created_vehicle = post_response.json()
+    vehicle_id = created_vehicle["id"]
+
+    # Attempt to update the vehicle's price and quantity
+    update_payload = {
+        "make": "Ford",
+        "model": "Mustang",
+        "category": "Coupe",
+        "price": 34000.0,
+        "quantity": 4
+    }
+    put_response = client.put(f"/api/vehicles/{vehicle_id}", json=update_payload, headers=headers)
+    
+    # We expect this to fail initially since the PUT endpoint doesn't exist
+    assert put_response.status_code == 200
+    updated_vehicle = put_response.json()
+    assert updated_vehicle["price"] == 34000.0
+    assert updated_vehicle["quantity"] == 4
+
