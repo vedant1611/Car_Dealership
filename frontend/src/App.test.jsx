@@ -13,6 +13,12 @@ vi.mock('./components/InventoryDashboard', () => ({
 }));
 
 describe('App Routing', () => {
+    beforeEach(() => {
+        vi.restoreAllMocks();
+        // Mock localStorage to simulate an authenticated user for App routing tests
+        vi.spyOn(Storage.prototype, 'getItem').mockReturnValue('fake-token');
+    });
+
     it('renders the Login component on the root route /', () => {
         render(
             <MemoryRouter initialEntries={['/']}>
