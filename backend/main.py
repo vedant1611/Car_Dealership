@@ -1,112 +1,16 @@
-from fastapi import FastAPI, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from database import get_db, engine, Base
+from fastapi import FastAPI
+from database import engine
 import models
-import schemas
-import security
+from routers import auth, vehicles
 
-# Create tables in the DB
-Base.metadata.create_all(bind=engine)
+# Initialize the database tables
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+app.include_router(auth.router)
+app.include_router(vehicles.router)
+
 @app.get("/api/health")
-def read_health():
+def health_check():
     return {"status": "ok"}
-
-@app.post("/api/auth/register", response_model=schemas.UserResponse)
-def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # Check if user already exists
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Hash password and save new user
-    hashed_password = security.get_password_hash(user.password)
-    new_user = models.User(email=user.email, hashed_password=hashed_password)
-    
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    
-    return new_user
-
-@app.post("/api/auth/login")
-def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if not db_user or not security.verify_password(user.password, db_user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-        )
-    
-    access_token = security.create_access_token(data={"sub": db_user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
-
-@app.post("/api/vehicles", response_model=schemas.VehicleResponse)
-def create_vehicle(
-    vehicle: schemas.VehicleCreate, 
-    db: Session = Depends(get_db), 
-    current_user: str = Depends(security.get_current_user)
-):
-    new_vehicle = models.Vehicle(**vehicle.model_dump())
-    db.add(new_vehicle)
-    db.commit()
-    db.refresh(new_vehicle)
-    return new_vehicle
-
-@app.get("/api/vehicles", response_model=list[schemas.VehicleResponse])
-def get_vehicles(
-    db: Session = Depends(get_db),
-    current_user: str = Depends(security.get_current_user)
-):
-    vehicles = db.query(models.Vehicle).all()
-    return vehicles
-
-@app.put("/api/vehicles/{vehicle_id}", response_model=schemas.VehicleResponse)
-def update_vehicle(
-    vehicle_id: int,
-    vehicle_data: schemas.VehicleCreate,
-    db: Session = Depends(get_db),
-    current_user: str = Depends(security.get_current_user)
-):
-    db_vehicle = db.query(models.Vehicle).filter(models.Vehicle.id == vehicle_id).first()
-    if not db_vehicle:
-        raise HTTPException(status_code=404, detail="Vehicle not found")
-    
-    db_vehicle.make = vehicle_data.make
-    db_vehicle.model = vehicle_data.model
-    db_vehicle.category = vehicle_data.category
-    db_vehicle.price = vehicle_data.price
-    db_vehicle.quantity = vehicle_data.quantity
-    
-    db.commit()
-    db.refresh(db_vehicle)
-    return db_vehicle
-
-@app.get("/api/vehicles/{vehicle_id}", response_model=schemas.VehicleResponse)
-def get_vehicle(
-    vehicle_id: int,
-    db: Session = Depends(get_db),
-    current_user: str = Depends(security.get_current_user)
-):
-    db_vehicle = db.query(models.Vehicle).filter(models.Vehicle.id == vehicle_id).first()
-    if not db_vehicle:
-        raise HTTPException(status_code=404, detail="Vehicle not found")
-    return db_vehicle
-
-@app.delete("/api/vehicles/{vehicle_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_vehicle(
-    vehicle_id: int,
-    db: Session = Depends(get_db),
-    current_user: str = Depends(security.get_current_user)
-):
-    db_vehicle = db.query(models.Vehicle).filter(models.Vehicle.id == vehicle_id).first()
-    if not db_vehicle:
-        raise HTTPException(status_code=404, detail="Vehicle not found")
-    
-    db.delete(db_vehicle)
-    db.commit()
-    return None
-
-
