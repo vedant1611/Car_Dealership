@@ -64,6 +64,31 @@ export default function InventoryDashboard() {
     }
   };
 
+  const handleDeleteVehicle = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this vehicle?')) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`/api/vehicles/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete vehicle');
+      }
+
+      addToast('Vehicle deleted successfully!', 'success');
+      fetchVehicles();
+    } catch (err) {
+      addToast('Failed to delete vehicle.', 'error');
+    }
+  };
+
   if (loading) {
     return <div className="p-8 text-center text-gray-500">Loading inventory...</div>;
   }
@@ -98,6 +123,14 @@ export default function InventoryDashboard() {
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                   ${vehicle.price?.toLocaleString()}
                 </span>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                <button
+                  onClick={() => handleDeleteVehicle(vehicle.id)}
+                  className="text-sm font-medium text-red-600 hover:text-red-800 focus:outline-none transition-colors"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}

@@ -178,4 +178,66 @@ describe('InventoryDashboard Component', () => {
         // Assert modal remains open
         expect(screen.getByText(/add new vehicle/i)).toBeInTheDocument();
     });
+
+    it('deletes a vehicle when confirmed and shows a success toast', async () => {
+        // Mock fetch for GET success and DELETE success
+        global.fetch = vi.fn((url, options) => {
+            if (options && options.method === 'DELETE') {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({})
+                });
+            }
+            return Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve([
+                    { id: 1, make: 'Toyota', model: 'Camry', year: 2023, price: 25000, quantity: 5 }
+                ]),
+            });
+        });
+
+        // Mock window.confirm
+        const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+        render(
+            <ToastProvider>
+                <InventoryDashboard />
+            </ToastProvider>
+        );
+
+        // Wait for the vehicle to be rendered
+        await waitFor(() => {
+            expect(screen.getByText(/Toyota/i)).toBeInTheDocument();
+        });
+
+        // 1) Find the delete button
+        const deleteBtn = screen.getByRole('button', { name: /delete/i });
+        expect(deleteBtn).toBeInTheDocument();
+
+        // 2) Click delete
+        fireEvent.click(deleteBtn);
+
+        // 3) Assert confirm was called
+        expect(confirmSpy).toHaveBeenCalledWith(expect.stringContaining('Are you sure'));
+
+        // 4) Assert DELETE request sent
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                '/api/vehicles/1',
+                expect.objectContaining({
+                    method: 'DELETE',
+                    headers: expect.objectContaining({
+                        'Authorization': 'Bearer fake-jwt-token'
+                    })
+                })
+            );
+        });
+
+        // 5) Assert success toast
+        await waitFor(() => {
+            expect(screen.getByText(/vehicle deleted successfully/i)).toBeInTheDocument();
+        });
+        
+        confirmSpy.mockRestore();
+    });
 });
