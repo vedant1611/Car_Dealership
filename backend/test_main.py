@@ -72,3 +72,29 @@ def test_login_user():
     data = response.json()
     assert "access_token" in data
 
+def test_create_vehicle_authenticated():
+    # Login to get the access token
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": "login@example.com", "password": "loginpassword"}
+    )
+    assert login_response.status_code == 200
+    token = login_response.json()["access_token"]
+
+    # Use the token to attempt creating a vehicle
+    headers = {"Authorization": f"Bearer {token}"}
+    vehicle_payload = {
+        "make": "Toyota",
+        "model": "Camry",
+        "category": "Sedan",
+        "price": 25000.0,
+        "quantity": 5
+    }
+    response = client.post("/api/vehicles", json=vehicle_payload, headers=headers)
+    
+    # We expect this to fail initially since the endpoint doesn't exist
+    assert response.status_code == 200
+    data = response.json()
+    assert data["make"] == "Toyota"
+    assert "id" in data
+
