@@ -84,4 +84,29 @@ def update_vehicle(
     db.refresh(db_vehicle)
     return db_vehicle
 
+@app.get("/api/vehicles/{vehicle_id}", response_model=schemas.VehicleResponse)
+def get_vehicle(
+    vehicle_id: int,
+    db: Session = Depends(get_db),
+    current_user: str = Depends(security.get_current_user)
+):
+    db_vehicle = db.query(models.Vehicle).filter(models.Vehicle.id == vehicle_id).first()
+    if not db_vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    return db_vehicle
+
+@app.delete("/api/vehicles/{vehicle_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_vehicle(
+    vehicle_id: int,
+    db: Session = Depends(get_db),
+    current_user: str = Depends(security.get_current_user)
+):
+    db_vehicle = db.query(models.Vehicle).filter(models.Vehicle.id == vehicle_id).first()
+    if not db_vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    db.delete(db_vehicle)
+    db.commit()
+    return None
+
 
