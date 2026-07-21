@@ -55,3 +55,20 @@ def test_register_duplicate_user():
     assert response.status_code == 400
     assert response.json() == {"detail": "Email already registered"}
 
+def test_login_user():
+    # Ensure the user is registered first
+    client.post(
+        "/api/auth/register",
+        json={"email": "login@example.com", "password": "loginpassword"}
+    )
+    
+    # Attempt to login
+    response = client.post(
+        "/api/auth/login",
+        json={"email": "login@example.com", "password": "loginpassword"}
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert "access_token" in data
+
