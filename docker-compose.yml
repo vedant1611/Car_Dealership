@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  app-network:
+    driver: bridge
+
 services:
   db:
     image: postgres:15
@@ -11,6 +15,8 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   web:
     build: ./backend
@@ -23,17 +29,17 @@ services:
       - db
     environment:
       DATABASE_URL: postgresql://user:password@db:5432/car_dealership
-
-volumes:
-  postgres_data:
+    networks:
+      - app-network
 
   frontend:
     build: ./frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     ports:
-      - "5173:5173"
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - VITE_WATCH_POLLING=true
+      - "8080:80"
+    depends_on:
+      - web
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:

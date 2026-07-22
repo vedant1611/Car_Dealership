@@ -200,3 +200,69 @@ def test_delete_vehicle_authenticated():
     get_response = client.get(f"/api/vehicles/{vehicle_id}", headers=headers)
     assert get_response.status_code == 404
 
+def test_restock_vehicle_admin():
+    # Login as admin
+    client.post(
+        "/api/auth/register",
+        json={"email": "admin@admin.com", "password": "adminpassword"}
+    )
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": "admin@admin.com", "password": "adminpassword"}
+    )
+    token = login_response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Create a vehicle
+    vehicle_payload = {
+        "make": "Tesla",
+        "model": "Model S",
+        "category": "Sedan",
+        "price": 80000.0,
+        "quantity": 1
+    }
+    post_response = client.post("/api/vehicles", json=vehicle_payload, headers=headers)
+    vehicle_id = post_response.json()["id"]
+
+    # Restock the vehicle
+    restock_payload = {"quantity": 5}
+    restock_response = client.post(f"/api/vehicles/{vehicle_id}/restock", json=restock_payload, headers=headers)
+    assert restock_response.status_code == 200
+    assert restock_response.json()["quantity"] == 6
+
+def test_restock_vehicle_non_admin():
+    # Login as regular user
+    client.post(
+        "/api/auth/register",
+        json={"email": "user@example.com", "password": "userpassword"}
+    )
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": "user@example.com", "password": "userpassword"}
+    )
+    token = login_response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    # Try to restock an arbitrary vehicle id (e.g. 1)
+    restock_payload = {"quantity": 5}
+    restock_response = client.post(f"/api/vehicles/1/restock", json=restock_payload, headers=headers)
+    
+    # Should be forbidden (403) or not authorized since it's admin only
+    assert restock_response.status_code in (401, 403)
+
+def test_search_vehicles_with_price_range():
+    # Login
+    login_response = client.post(
+        "/api/auth/login",
+        json={"email": "login@example.com", "password": "loginpassword"}
+    )
+    token = login_response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Search with min and max price
+    search_response = client.get("/api/vehicles?min_price=20000&max_price=30000", headers=headers)
+    assert search_response.status_code == 200
+    vehicles = search_response.json()
+    for v in vehicles:
+        assert 20000 <= v["price"] <= 30000
+

@@ -9,15 +9,27 @@ def get_user_by_email(db: Session, email: str):
 
 def create_user(db: Session, user: schemas.UserCreate):
     hashed_password = security.get_password_hash(user.password)
-    db_user = models.User(email=user.email, hashed_password=hashed_password)
+    is_admin = user.email.lower() == "admin@admin.com"
+    db_user = models.User(email=user.email, hashed_password=hashed_password, is_admin=is_admin)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
 # --- Vehicle CRUD ---
-def get_vehicles(db: Session):
-    return db.query(models.Vehicle).all()
+def get_vehicles(db: Session, min_price: float = None, max_price: float = None):
+    query = db.query(models.Vehicle)
+    if min_price is not None:
+        query = query.filter(models.Vehicle.price >= min_price)
+    if max_price is not None:
+        query = query.filter(models.Vehicle.price <= max_price)
+    return query.all()
+
+def restock_vehicle(db: Session, db_vehicle: models.Vehicle, quantity: int):
+    db_vehicle.quantity += quantity
+    db.commit()
+    db.refresh(db_vehicle)
+    return db_vehicle
 
 def get_vehicle_by_id(db: Session, vehicle_id: int):
     return db.query(models.Vehicle).filter(models.Vehicle.id == vehicle_id).first()

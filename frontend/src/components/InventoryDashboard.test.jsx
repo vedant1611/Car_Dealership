@@ -42,6 +42,13 @@ describe('InventoryDashboard Component', () => {
             expect(screen.getByText(/Civic/i)).toBeInTheDocument();
         });
 
+        // Assert Edit and Delete buttons are present
+        const editBtns = screen.getAllByRole('button', { name: /edit/i });
+        expect(editBtns.length).toBe(2);
+        
+        const deleteBtns = screen.getAllByRole('button', { name: /delete/i });
+        expect(deleteBtns.length).toBe(2);
+
         // Assert fetch was called with correct headers
         expect(global.fetch).toHaveBeenCalledWith(
             '/api/vehicles',
@@ -112,9 +119,9 @@ describe('InventoryDashboard Component', () => {
                     body: JSON.stringify({
                         make: 'Ford',
                         model: 'Mustang',
-                        year: '2024',
-                        price: '45000',
-                        vin: 'F123'
+                        category: '2024',
+                        price: 45000,
+                        quantity: 1
                     })
                 })
             );

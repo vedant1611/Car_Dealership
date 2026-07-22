@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import Login from './Login';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -8,7 +9,11 @@ describe('Login Component', () => {
     });
 
     it('renders email, password inputs and a submit button', () => {
-        render(<Login />);
+        render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        );
         expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /submit|login/i })).toBeInTheDocument();
@@ -23,7 +28,11 @@ describe('Login Component', () => {
             })
         );
 
-        render(<Login />);
+        render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        );
         
         // Simulate user typing
         fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
