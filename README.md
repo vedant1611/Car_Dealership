@@ -15,13 +15,13 @@ DriveStock is built using a modern, scalable tech stack, heavily emphasizing a s
 Below is a preview of the DriveStock aesthetic:
 
 - **Login Page**
-  ![Login Page](./path/to/login.png)
+  ![Login Page](./frontend/src/assets/login.png)
 
 - **Main Dashboard**
-  ![Main Dashboard](./path/to/dashboard.png)
+  ![Main Dashboard](./frontend/src/assets/dashboard.png)
 
 - **Add/Edit Modal**
-  ![Add/Edit Modal](./path/to/modal.png)
+  ![Add/Edit Modal](./frontend/src/assets/modal.png)
 
 ## Setup Instructions
 
@@ -30,7 +30,7 @@ The entire system is fully containerized using Docker, making local deployment s
 1. **Clone the repository**
    ```bash
    git clone <your-repo-url>
-   cd car-dealership-kata
+   cd Car_Dealership
    ```
 
 2. **Build and Start the Application**
