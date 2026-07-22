@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
+import { API_BASE_URL } from '../config';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,7 +22,7 @@ export default function Login() {
     setError(null);
     setIsLoading(true);
 
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+    const endpoint = isLogin ? `${API_BASE_URL}/api/auth/login` : `${API_BASE_URL}/api/auth/register`;
 
     try {
       const response = await fetch(endpoint, {
@@ -41,7 +42,7 @@ export default function Login() {
       if (!isLogin) {
         addToast('Registration successful! Logging in...', 'success');
         // After register, we should login to get the token
-        const loginResponse = await fetch('/api/auth/login', {
+        const loginResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

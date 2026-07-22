@@ -3,6 +3,7 @@ import CreateVehicleModal from './CreateVehicleModal';
 import EditVehicleModal from './EditVehicleModal';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 export default function InventoryDashboard() {
   const [vehicles, setVehicles] = useState([]);
@@ -31,7 +32,7 @@ export default function InventoryDashboard() {
       if (minPrice) params.append('min_price', minPrice);
       if (maxPrice) params.append('max_price', maxPrice);
       
-      const url = `/api/vehicles${params.toString() ? `?${params.toString()}` : ''}`;
+      const url = `${API_BASE_URL}/api/vehicles${params.toString() ? `?${params.toString()}` : ''}`;
       
       const response = await fetch(url, {
         headers: {
@@ -66,7 +67,7 @@ export default function InventoryDashboard() {
         quantity: 1
       };
 
-      const response = await fetch('/api/vehicles', {
+      const response = await fetch(`${API_BASE_URL}/api/vehicles`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +94,7 @@ export default function InventoryDashboard() {
     }
 
     try {
-      const response = await fetch(`/api/vehicles/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/vehicles/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -113,7 +114,7 @@ export default function InventoryDashboard() {
 
   const handlePurchase = async (id) => {
     try {
-      const response = await fetch(`/api/vehicles/${id}/purchase`, {
+      const response = await fetch(`${API_BASE_URL}/api/vehicles/${id}/purchase`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -143,7 +144,7 @@ export default function InventoryDashboard() {
     }
 
     try {
-      const response = await fetch(`/api/vehicles/${id}/restock`, {
+      const response = await fetch(`${API_BASE_URL}/api/vehicles/${id}/restock`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

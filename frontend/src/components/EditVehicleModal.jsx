@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext';
+import { API_BASE_URL } from '../config';
 
 export default function EditVehicleModal({ isOpen, onClose, onSuccess, vehicle }) {
   const [formData, setFormData] = useState({
@@ -44,7 +45,7 @@ export default function EditVehicleModal({ isOpen, onClose, onSuccess, vehicle }
         quantity: 1
       };
 
-      const response = await fetch(`/api/vehicles/${vehicle.id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/vehicles/${vehicle.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
