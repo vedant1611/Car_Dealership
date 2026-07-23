@@ -14,14 +14,14 @@ DriveStock is built using a modern, scalable tech stack, heavily emphasizing a s
 
 Below is a preview of the DriveStock aesthetic:
 
-- **Login Page**
-  ![Login Page](./frontend/src/assets/login.png)
+- **Screenshot 1**
+  ![Screenshot 1](https://github.com/user-attachments/assets/2b5a9a70-5851-42de-9a2d-ca76a9a2735b)
 
-- **Main Dashboard**
-  ![Main Dashboard](./frontend/src/assets/dashboard.png)
+- **Screenshot 2**
+  ![Screenshot 2](https://github.com/user-attachments/assets/01db6dc3-8abf-4e5a-ace5-703d709c2ab7)
 
-- **Add/Edit Modal**
-  ![Add/Edit Modal](./frontend/src/assets/modal.png)
+- **Screenshot 3**
+  ![Screenshot 3](https://github.com/user-attachments/assets/5285e450-23f5-42ad-b65e-fd8b394680eb)
 
 ## Setup Instructions
 
