@@ -3,14 +3,16 @@ import InventoryDashboard from './InventoryDashboard';
 import { ToastProvider } from '../context/ToastContext';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.mock('../context/AuthContext', () => ({
+    useAuth: () => ({
+        user: { is_admin: true },
+        token: 'fake-jwt-token'
+    })
+}));
+
 describe('InventoryDashboard Component', () => {
     beforeEach(() => {
         vi.restoreAllMocks();
-        // Mock localStorage
-        vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
-            if (key === 'token') return 'fake-jwt-token';
-            return null;
-        });
     });
 
     it('fetches and displays a list of vehicles', async () => {

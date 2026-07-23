@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Login from './Login';
+import { ToastProvider } from '../context/ToastContext';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 describe('Login Component', () => {
@@ -10,13 +11,15 @@ describe('Login Component', () => {
 
     it('renders email, password inputs and a submit button', () => {
         render(
-            <MemoryRouter>
-                <Login />
-            </MemoryRouter>
+            <ToastProvider>
+                <MemoryRouter>
+                    <Login />
+                </MemoryRouter>
+            </ToastProvider>
         );
         expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /submit|login/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /sign in|submit|login/i })).toBeInTheDocument();
     });
 
     it('submits the form and calls the login API', async () => {
@@ -29,9 +32,11 @@ describe('Login Component', () => {
         );
 
         render(
-            <MemoryRouter>
-                <Login />
-            </MemoryRouter>
+            <ToastProvider>
+                <MemoryRouter>
+                    <Login />
+                </MemoryRouter>
+            </ToastProvider>
         );
         
         // Simulate user typing
@@ -39,7 +44,7 @@ describe('Login Component', () => {
         fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'password123' } });
         
         // Simulate click
-        fireEvent.click(screen.getByRole('button', { name: /login/i }));
+        fireEvent.click(screen.getByRole('button', { name: /sign in|login/i }));
         
         // Assert API call
         await waitFor(() => {
