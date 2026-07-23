@@ -23,6 +23,9 @@ Below is a preview of the DriveStock aesthetic:
 - **Screenshot 3**
   ![Screenshot 3](https://github.com/user-attachments/assets/5285e450-23f5-42ad-b65e-fd8b394680eb)
 
+- **Screenshot 4**
+  ![Screenshot 4](https://github.com/user-attachments/assets/e9a5ad46-a34c-4bd3-bbee-6f8f7e2bd05c)
+
 ## Setup Instructions
 
 The entire system is fully containerized using Docker, making local deployment simple and reproducible. 
