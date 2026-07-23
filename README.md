@@ -48,6 +48,17 @@ The entire system is fully containerized using Docker, making local deployment s
    - **Frontend UI:** Open your browser and navigate to `http://localhost:8080`.
    - **Backend API Docs:** Explore the interactive Swagger UI at `http://localhost:8000/docs`.
 
+4. **Login Instructions**
+   1. **Admin user**
+      - Sign up using:
+        - **Email:** `admin@admin.com`
+        - **Password:** `password123`
+      - After sign-up, sign in with the same credentials.
+
+   2. **All other users**
+      - Sign up using any valid email address and password.
+      - After sign-up, sign in with your registered credentials.
+
 *(Note: Ensure you have Docker and docker-compose installed on your machine before running the above commands.)*
 
 ## My AI Usage
